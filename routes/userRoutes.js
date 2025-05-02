@@ -1,12 +1,12 @@
 const express = require("express");
 const UserModel = require("../modules/user.model");
 const userRouter = express.Router();
-const bcrypt = require("bcrypt")
-const jwt = require("jsonwebtoken")
-
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { status } = require("init");
 
 userRouter.post("/register", async (req, res) => {
-  let { name, email, password } = req.body;
+  let { fname, lname, email, password } = req.body;
   let oldUser = await UserModel.find({ email });
   console.log(oldUser, "oldUser");
   if (oldUser?.length > 0) {
@@ -17,7 +17,7 @@ userRouter.post("/register", async (req, res) => {
         if (err) {
           res.send({ msg: "User Registation failed" });
         } else {
-          await UserModel.create({ name, email, password:hash });
+          await UserModel.create({ fname, lname, email, password: hash });
           res.send({ msg: "User is Created successfully" });
         }
       });
@@ -36,10 +36,11 @@ userRouter.post("/login", async (req, res) => {
       let token = jwt.sign({ userID: user[0]._id }, "shhhh");
       if (token) {
         res.send({
+          status: "success",
           msg: "Login successfully",
           token: token,
           user: user[0]._id,
-          name: user[0].name,
+          fname: user[0].fname,
         });
       } else {
         res.send({ msg: "Token is missing" });
